@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const db = require('./dbveiculos_crud');
+const dbcontext = db.veiculosDatabase();
 
 app.use(express.json());
 
@@ -7,34 +9,25 @@ app.listen(3002, () => {
     console.log('ABRINDO O SERVIDOR..')
 })
 
-
-const carros = [];
-
-app.get('/carros', (req, res) => {
-    res.status(200).send({carros: carros});
+app.get('/carros', async (req, res) => {
+    res.status(200).send(await dbcontext.list());
 })
 
-app.get('/carros/:id', (req, res) => {
-    const carro = carros.find(x => x.id == req.params.id);
-    res.status(200).send(carro);
+app.get('/carros/:id', async (req, res) => {
+    res.status(200).send(await dbcontext.get(req.params.id));
 })
 
-app.post('/carro/cadastrar', (req, res) => {
-    carros.push(req.body);
+app.post('/carro/cadastrar', async (req, res) => {
+    await dbcontext.insert(req.body);
     res.status(200).send('Carro cadastrado !');
 })
 
-app.put('/carro/atualizar/:id', (req, res) => {
-    const carro = carros.find(x => x.id == req.params.id);
-    const carroID = carros.indexOf[carro];
-    carros[carroID] = req.body;
+app.put('/carro/atualizar/:id', async (req, res) => {
+    await dbcontext.update(req.body, req.params.id);
     res.status(200).send('Carro atualizado !')
-    console.log(carros[carroID])
 })
 
-app.delete('/carro/deletar/:1', (req, res) => {
-    const carro = carros.find(x => x.id == req.params.id);
-    const carroID = carros.indexOf[carro];
-    carros.slice(carroID, 1);
+app.delete('/carro/deletar/:1', async (req, res) => {
+    await dbcontext.del(req.params.id)
     res.status(200).send('Carro deletado !')
 })
